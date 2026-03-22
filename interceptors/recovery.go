@@ -2,12 +2,12 @@ package interceptors
 
 import (
 	"context"
-	"log/slog"
 	"fmt"
+	"log/slog"
+	"runtime/debug"
 
 	"connectrpc.com/connect"
 )
-
 
 type recoveryInterceptor struct{}
 
@@ -22,6 +22,7 @@ func (i *recoveryInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFun
 				slog.Error("unary panic recovered",
 					slog.String("procedure", req.Spec().Procedure),
 					slog.Any("panic", r),
+					slog.String("stack", string(debug.Stack())),
 				)
 				err = connect.NewError(connect.CodeInternal, fmt.Errorf("internal error"))
 			}
@@ -41,6 +42,7 @@ func (i *recoveryInterceptor) WrapStreamingHandler(next connect.StreamingHandler
 				slog.Error("streaming panic recovered",
 					slog.String("procedure", conn.Spec().Procedure),
 					slog.Any("panic", r),
+					slog.String("stack", string(debug.Stack())),
 				)
 				err = connect.NewError(connect.CodeInternal, fmt.Errorf("internal error"))
 			}

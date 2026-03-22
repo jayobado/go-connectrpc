@@ -1,10 +1,9 @@
 package connectrpc
 
-
 import (
 	"net/http"
+	"strconv"
 	"strings"
-	"fmt"
 )
 
 type CorsConfig struct {
@@ -55,12 +54,13 @@ func corsMiddleware(cfg CorsConfig) func(http.Handler) http.Handler {
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
 			w.Header().Set("Access-Control-Allow-Headers", strings.Join(cfg.AllowedHeaders, ", "))
 			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+			w.Header().Set("Access-Control-Expose-Headers",
+				"Content-Type, Connect-Protocol-Version, Grpc-Status, Grpc-Message, Grpc-Status-Details-Bin")
 			w.Header().Set("Vary", "Origin")
 
-			// handle preflight
 			if r.Method == http.MethodOptions {
 				if cfg.MaxAge > 0 {
-					w.Header().Set("Access-Control-Max-Age", fmt.Sprintf("%d", cfg.MaxAge))
+					w.Header().Set("Access-Control-Max-Age", strconv.Itoa(cfg.MaxAge))
 				}
 				w.WriteHeader(http.StatusNoContent)
 				return
