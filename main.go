@@ -36,8 +36,8 @@ type Server struct {
 
 func NewServer(cfg Config) *Server {
 	interceptors := []connect.Interceptor{
-		interceptor.Logging(),
 		interceptor.Recovery(),
+		interceptor.Logging(),
 	}
 	interceptors = append(interceptors, cfg.Interceptors...)
 
